@@ -98,6 +98,12 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Create stripe pattern for Low (54) - Red with stripes
+    const lowPattern = this.createStripePattern(ctx, '#dc3545', '#ffffff');
+    
+    // Create stripe pattern for High (240) - Yellow with stripes  
+    const highPattern = this.createStripePattern(ctx, '#ffc107', '#ffffff');
+
     this.timeInRangeChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -106,7 +112,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
           {
             label: 'Very Low (<54)',
             data: [data.veryLow],
-            backgroundColor: '#dc3545',
+            backgroundColor: '#dc3545', // Red solid
             borderWidth: 0,
             barPercentage: 0.3, // Make bar narrower
             categoryPercentage: 0.8
@@ -114,7 +120,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
           {
             label: 'Low (54-69)',
             data: [data.low],
-            backgroundColor: '#fd7e14',
+            backgroundColor: lowPattern || '#dc3545', // Red with stripes (fallback to solid)
             borderWidth: 0,
             barPercentage: 0.3,
             categoryPercentage: 0.8
@@ -122,7 +128,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
           {
             label: 'Target (70-180)',
             data: [data.target],
-            backgroundColor: '#28a745',
+            backgroundColor: '#8bc34a', // Bright Green (matching GMI)
             borderWidth: 0,
             barPercentage: 0.3,
             categoryPercentage: 0.8
@@ -130,7 +136,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
           {
             label: 'High (181-250)',
             data: [data.high],
-            backgroundColor: '#ffc107',
+            backgroundColor: highPattern || '#ffc107', // Yellow with stripes (fallback to solid)
             borderWidth: 0,
             barPercentage: 0.3,
             categoryPercentage: 0.8
@@ -138,7 +144,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
           {
             label: 'Very High (>250)',
             data: [data.veryHigh],
-            backgroundColor: '#dc3545',
+            backgroundColor: '#ff9800', // Orange solid
             borderWidth: 0,
             barPercentage: 0.3,
             categoryPercentage: 0.8
@@ -148,25 +154,13 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
       options: {
         responsive: false,
         maintainAspectRatio: false,
-        interaction: {
-          intersect: true,
-          mode: 'dataset'
-        },
+        onHover: undefined,
         plugins: {
           legend: {
             display: false
           },
           tooltip: {
-            enabled: true,
-            displayColors: false,
-            callbacks: {
-              title: function() {
-                return '';
-              },
-              label: function(context) {
-                return context.dataset.label + ': ' + context.parsed.y + '%';
-              }
-            }
+            enabled: false
           }
         },
         scales: {
@@ -183,6 +177,33 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
     });
   }
 
+  private createStripePattern(ctx: CanvasRenderingContext2D, baseColor: string, stripeColor: string): CanvasPattern | null {
+    // Create a small canvas for the pattern
+    const patternCanvas = document.createElement('canvas');
+    patternCanvas.width = 8;
+    patternCanvas.height = 8;
+    const patternCtx = patternCanvas.getContext('2d');
+    
+    if (!patternCtx) return null;
+    
+    // Fill with base color
+    patternCtx.fillStyle = baseColor;
+    patternCtx.fillRect(0, 0, 8, 8);
+    
+    // Add diagonal stripes
+    patternCtx.strokeStyle = stripeColor;
+    patternCtx.globalAlpha = 0.3;
+    patternCtx.lineWidth = 1;
+    patternCtx.beginPath();
+    patternCtx.moveTo(0, 4);
+    patternCtx.lineTo(4, 0);
+    patternCtx.moveTo(4, 8);
+    patternCtx.lineTo(8, 4);
+    patternCtx.stroke();
+    
+    return ctx.createPattern(patternCanvas, 'repeat');
+  }
+
   private createGMIChart(canvas: HTMLCanvasElement, data: any) {
     // Destroy existing chart if it exists
     if (this.gmiChart) {
@@ -194,9 +215,9 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
 
     // Define GMI colors matching clinical ranges
     const colors = [
-      '#28a745', // Target (≤7.0%) - Green
-      '#ffc107', // Above Target (7.0-8.0%) - Yellow
-      '#dc3545'  // High (>8.0%) - Red
+      '#8bc34a', // Target (≤7.0%) - Bright Green
+      '#ff9800', // Above Target (7.0-8.0%) - Orange  
+      '#f44336'  // High (>8.0%) - Bright Red
     ];
 
     // Prepare data - only include categories with values > 0
@@ -207,17 +228,17 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
     if (data.target > 0) {
       chartData.push(data.target);
       chartLabels.push('Target');
-      chartColors.push('#28a745');
+      chartColors.push('#8bc34a');
     }
     if (data.above > 0) {
       chartData.push(data.above);
       chartLabels.push('Above Target');
-      chartColors.push('#ffc107');
+      chartColors.push('#ff9800');
     }
     if (data.high > 0) {
       chartData.push(data.high);
       chartLabels.push('High');
-      chartColors.push('#dc3545');
+      chartColors.push('#f44336');
     }
 
     this.gmiChart = new Chart(ctx, {
@@ -232,53 +253,16 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
         }]
       },
       options: {
-        responsive: false,
-        maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1,
+        onHover: undefined,
         plugins: {
           legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              padding: 20,
-              usePointStyle: true,
-              pointStyle: 'circle',
-              font: {
-                size: 12
-              },
-              generateLabels: function(chart) {
-                const data = chart.data;
-                if (data.labels && data.datasets.length) {
-                  return data.labels.map((label, i) => {
-                    const dataset = data.datasets[0];
-                    const value = dataset.data[i];
-                    const backgroundColor = Array.isArray(dataset.backgroundColor) 
-                      ? dataset.backgroundColor[i] 
-                      : dataset.backgroundColor;
-                    
-                    return {
-                      text: `${label} (${value}%)`,
-                      fillStyle: backgroundColor as string,
-                      strokeStyle: backgroundColor as string,
-                      pointStyle: 'circle',
-                      hidden: false
-                    };
-                  });
-                }
-                return [];
-              }
-            }
+            display: false
           },
           tooltip: {
-            enabled: true,
-            displayColors: false,
-            callbacks: {
-              title: function() {
-                return '';
-              },
-              label: function(context) {
-                return context.label + ': ' + context.parsed + '%';
-              }
-            }
+            enabled: false
           }
         }
       }
