@@ -1,0 +1,111 @@
+<div class="clinic-outcomes-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">Clinic Outcomes</h1>
+      
+      <div class="header-controls">
+        <!-- Time Period Filter -->
+        <div class="period-filter">
+          <button 
+            *ngFor="let period of timePeriods"
+            class="period-btn"
+            [class.active]="(selectedPeriod$ | async) === period"
+            (click)="onPeriodSelect(period)">
+            {{ period }} days
+          </button>
+        </div>
+        
+        <!-- Print Button -->
+        <button class="print-btn" (click)="onPrintClick()">
+          <span class="print-icon">🖨️</span>
+          Print
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async; else contentSection" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading clinic outcomes data...</p>
+  </div>
+
+  <!-- Main Content - Only shows when NOT loading -->
+  <ng-template #contentSection>
+    <div class="dashboard-content">
+      <ng-container *ngIf="dashboardData$ | async as data">
+        <ng-container *ngIf="data.timeInRange && data.gmi && data.metadata">
+        
+        <!-- Patient Information -->
+        <div class="patient-info">
+          <p class="patient-count">
+            Showing {{ data.timeInRange.activePatientCount || 0 }} patients from last 
+            {{ (selectedPeriod$ | async) }} days of available data from 
+            {{ data.metadata.dateRange?.start }} - {{ data.metadata.dateRange?.end }}
+          </p>
+          <p class="data-info">
+            Only patients with a minimum of 3 days of SG data are included. 
+            Last updated on {{ data.metadata.lastUpdated }}
+          </p>
+        </div>
+
+      <!-- Charts Section -->
+      <div class="charts-container">
+        
+        <!-- Time in Range Chart -->
+        <div class="chart-section">
+          <h2 class="chart-title">Time in range</h2>
+          <div class="chart-container" *ngIf="data.timeInRange">
+            <canvas id="timeInRangeChart" width="400" height="200"></canvas>
+            
+            <!-- Glucose Range Strip -->
+            <div class="glucose-range-strip">
+              <div class="range-segment very-low">
+                <span class="range-number">40</span>
+              </div>
+              <div class="range-segment low">
+                <span class="range-number">54</span>
+              </div>
+              <div class="range-segment target">
+                <span class="range-number">70</span>
+                <span class="range-label">mg/dL</span>
+                <span class="range-number">180</span>
+              </div>
+              <div class="range-segment high">
+                <span class="range-number">240</span>
+              </div>
+              <div class="range-segment very-high">
+                <span class="range-number">400</span>
+              </div>
+            </div>
+            
+            <p class="chart-note">Based on standard of care ranges for Time in range.</p>
+          </div>
+        </div>
+
+        <!-- GMI Chart -->
+        <div class="chart-section">
+          <h2 class="chart-title">Glucose Management Indicator (GMI)</h2>
+          <div class="chart-container" *ngIf="data.gmi">
+            <div class="gmi-average-display">
+              <div class="average-label">AVERAGE GMI</div>
+              <div class="average-value">{{ data.gmi.averageGMI }}%</div>
+            </div>
+            <canvas id="gmiChart" width="400" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    </ng-container>
+
+    <!-- Error State -->
+    <div *ngIf="(dashboardData$ | async)?.error" class="error-container">
+      <p class="error-message">
+        Error loading data: {{ (dashboardData$ | async)?.error }}
+      </p>
+    </div>
+    </div>
+  </ng-template>
+
+</div>
