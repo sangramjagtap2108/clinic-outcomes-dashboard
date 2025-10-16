@@ -10,7 +10,7 @@ import {
   selectSelectedPeriod,
   selectLoading 
 } from '../store/selectors';
-import { loadDashboardData } from '../store/actions';
+import { loadTimeInRangeData, loadGMIData } from '../store/actions';
 import { TimePeriod } from '../models';
 
 @Component({
@@ -43,8 +43,14 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
   }
 
   ngOnInit() {
-    // Load initial data for 30 days
-    this.store.dispatch(loadDashboardData({ period: 30 }));
+    // Load initial data for 30 days using separate actions
+    this.loadDataForPeriod(30);
+  }
+
+  private loadDataForPeriod(period: TimePeriod) {
+    // Dispatch separate actions for each data type
+    this.store.dispatch(loadTimeInRangeData({ period }));
+    this.store.dispatch(loadGMIData({ period }));
   }
 
   ngAfterViewInit() {
@@ -270,8 +276,8 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
   }
 
   onPeriodSelect(period: TimePeriod) {
-    // Single action now handles both period selection and data loading atomically
-    this.store.dispatch(loadDashboardData({ period }));
+    // Dispatch separate actions for each data type
+    this.loadDataForPeriod(period);
   }
 
   onPrintClick() {

@@ -1,26 +1,35 @@
-import { TimeInRangeResult, GMIResult, DashboardMetadata, TimePeriod } from '../models';
+import { TimeInRangeResult, GMIResult, TimePeriod } from '../models';
 
-// Simplified Clinic Outcomes State
+// Separate loading/error states for each data type
+interface DataState<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+// Updated Clinic Outcomes State with separate states
 export interface ClinicOutcomesState {
   // Selected time period
   selectedPeriod: TimePeriod;
   
-  // Processed data (ready for charts)
-  timeInRangeResult: TimeInRangeResult | null;
-  gmiResult: GMIResult | null;
-  metadata: DashboardMetadata | null;
+  // Time in Range Chart State
+  timeInRange: DataState<TimeInRangeResult>;
   
-  // Loading states
-  loading: boolean;
-  error: string | null;
+  // GMI Chart State
+  gmi: DataState<GMIResult>;
 }
 
 // Initial state
 export const initialState: ClinicOutcomesState = {
   selectedPeriod: 30,
-  timeInRangeResult: null,
-  gmiResult: null,
-  metadata: null,
-  loading: true,
-  error: null
+  timeInRange: {
+    data: null,
+    loading: true,
+    error: null
+  },
+  gmi: {
+    data: null,
+    loading: true,
+    error: null
+  }
 };

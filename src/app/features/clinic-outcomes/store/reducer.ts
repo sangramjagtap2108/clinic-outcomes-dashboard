@@ -5,26 +5,60 @@ import * as ClinicOutcomesActions from './actions';
 export const clinicOutcomesReducer = createReducer(
   initialState,
 
-  // Dashboard Data Loading (now also sets the selected period atomically)
-  on(ClinicOutcomesActions.loadDashboardData, (state, { period }) => ({
+  // Time in Range Actions
+  on(ClinicOutcomesActions.loadTimeInRangeData, (state, { period }) => ({
     ...state,
     selectedPeriod: period,
-    loading: true,
-    error: null
+    timeInRange: {
+      ...state.timeInRange,
+      loading: true,
+      error: null
+    }
   })),
 
-  on(ClinicOutcomesActions.loadDashboardDataSuccess, (state, { timeInRangeResult, gmiResult, metadata }) => ({
+  on(ClinicOutcomesActions.loadTimeInRangeDataSuccess, (state, { timeInRangeResult }) => ({
     ...state,
-    timeInRangeResult,
-    gmiResult,
-    metadata,
-    loading: false,
-    error: null
+    timeInRange: {
+      data: timeInRangeResult,
+      loading: false,
+      error: null
+    }
   })),
 
-  on(ClinicOutcomesActions.loadDashboardDataFailure, (state, { error }) => ({
+  on(ClinicOutcomesActions.loadTimeInRangeDataFailure, (state, { error }) => ({
     ...state,
-    loading: false,
-    error
+    timeInRange: {
+      ...state.timeInRange,
+      loading: false,
+      error
+    }
+  })),
+
+  // GMI Actions
+  on(ClinicOutcomesActions.loadGMIData, (state, { period }) => ({
+    ...state,
+    selectedPeriod: period,
+    gmi: {
+      ...state.gmi,
+      loading: true,
+      error: null
+    }
+  })),
+
+  on(ClinicOutcomesActions.loadGMIDataSuccess, (state, { gmiResult }) => ({
+    ...state,
+    gmi: {
+      data: gmiResult,
+      loading: false,
+      error: null
+    }
+  })),
+
+  on(ClinicOutcomesActions.loadGMIDataFailure, (state, { error }) => ({
+    ...state,
+    gmi: {
+      ...state.gmi,
+      loading: false,
+    }
   }))
 );

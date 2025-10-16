@@ -1,22 +1,34 @@
 import { createAction, props } from '@ngrx/store';
-import { TimeInRangeResult, GMIResult, DashboardMetadata, TimePeriod } from '../models';
+import { TimeInRangeResult, GMIResult, TimePeriod } from '../models';
 
-// Load Dashboard Data (sets period and loads data atomically)
-export const loadDashboardData = createAction(
-  '[Clinic Outcomes] Load Dashboard Data',
+// Time in Range Chart Actions
+export const loadTimeInRangeData = createAction(
+  '[Time in Range] Load Data',
   props<{ period: TimePeriod }>()
 );
 
-export const loadDashboardDataSuccess = createAction(
-  '[Clinic Outcomes] Load Dashboard Data Success',
-  props<{ 
-    timeInRangeResult: TimeInRangeResult; 
-    gmiResult: GMIResult; 
-    metadata: DashboardMetadata;
-  }>()
+export const loadTimeInRangeDataSuccess = createAction(
+  '[Time in Range] Load Data Success',
+  props<{ timeInRangeResult: TimeInRangeResult }>()
 );
 
-export const loadDashboardDataFailure = createAction(
-  '[Clinic Outcomes] Load Dashboard Data Failure',
+export const loadTimeInRangeDataFailure = createAction(
+  '[Time in Range] Load Data Failure',
+  props<{ error: string }>()
+);
+
+// GMI Chart Actions
+export const loadGMIData = createAction(
+  '[GMI] Load Data',
+  props<{ period: TimePeriod }>()
+);
+
+export const loadGMIDataSuccess = createAction(
+  '[GMI] Load Data Success',
+  props<{ gmiResult: GMIResult }>()
+);
+
+export const loadGMIDataFailure = createAction(
+  '[GMI] Load Data Failure',
   props<{ error: string }>()
 );

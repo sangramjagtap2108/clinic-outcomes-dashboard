@@ -11,18 +11,35 @@ export class ClinicOutcomesEffects {
   private actions$ = inject(Actions);
   private dataService = inject(ClinicOutcomesDataService);
   
-  // Load Dashboard Data Effect
-  loadDashboardData$ = createEffect(() =>
+  // Time in Range Data Effect
+  loadTimeInRangeData$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(ClinicOutcomesActions.loadDashboardData),
+      ofType(ClinicOutcomesActions.loadTimeInRangeData),
       switchMap(({ period }) =>
-        this.dataService.getDashboardData(period).pipe(
-          map(data => ClinicOutcomesActions.loadDashboardDataSuccess(data)),
-          catchError(error => of(ClinicOutcomesActions.loadDashboardDataFailure({ 
-            error: error.message || 'Failed to load dashboard data' 
+        this.dataService.getTimeInRangeData(period).pipe(
+          map(timeInRangeResult => ClinicOutcomesActions.loadTimeInRangeDataSuccess({ timeInRangeResult })),
+          catchError(error => of(ClinicOutcomesActions.loadTimeInRangeDataFailure({ 
+            error: error.message || 'Failed to load Time in Range data' 
           })))
         )
       )
     )
   );
+
+  // GMI Data Effect
+  loadGMIData$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ClinicOutcomesActions.loadGMIData),
+      switchMap(({ period }) =>
+        this.dataService.getGMIData(period).pipe(
+          map(gmiResult => ClinicOutcomesActions.loadGMIDataSuccess({ gmiResult })),
+          catchError(error => of(ClinicOutcomesActions.loadGMIDataFailure({ 
+            error: error.message || 'Failed to load GMI data' 
+          })))
+        )
+      )
+    )
+  );
+
+
 }

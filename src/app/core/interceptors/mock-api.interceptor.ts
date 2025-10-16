@@ -29,21 +29,42 @@ const MIN_READINGS_PER_PATIENT = 3;
 
 export function mockApiInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   
-  // Check if this is a clinic outcomes API call (simplified condition)
-  if (req.url.includes('clinic-outcomes/dashboard')) {
-    
-    // Extract period from query parameters
+  // Check if this is a Time in Range API call
+  if (req.url.includes('clinic-outcomes/time-in-range')) {
     const period = extractPeriodFromUrl(req.url);
+    const mockResponse = getMockTimeInRangeResponse(period);
     
-    // Get mock response based on period
-    const mockResponse = getMockDashboardResponse(period);
-    
-    // Return mock response with simulated network delay
     return of(new HttpResponse({
       status: 200,
       body: mockResponse
     })).pipe(
-      delay(NETWORK_DELAY_MS) // Configurable delay for realistic network behavior
+      delay(NETWORK_DELAY_MS)
+    );
+  }
+
+  // Check if this is a GMI API call
+  if (req.url.includes('clinic-outcomes/gmi')) {
+    const period = extractPeriodFromUrl(req.url);
+    const mockResponse = getMockGMIResponse(period);
+    
+    return of(new HttpResponse({
+      status: 200,
+      body: mockResponse
+    })).pipe(
+      delay(NETWORK_DELAY_MS)
+    );
+  }
+
+  // Check if this is a legacy dashboard API call (backward compatibility)
+  if (req.url.includes('clinic-outcomes/dashboard')) {
+    const period = extractPeriodFromUrl(req.url);
+    const mockResponse = getMockDashboardResponse(period);
+    
+    return of(new HttpResponse({
+      status: 200,
+      body: mockResponse
+    })).pipe(
+      delay(NETWORK_DELAY_MS)
     );
   }
 
@@ -69,6 +90,50 @@ function extractPeriodFromUrl(url: string): TimePeriod {
     console.warn('Failed to extract period from URL, using default:', error);
     return 30;
   }
+}
+
+function getMockTimeInRangeResponse(period: TimePeriod) {
+  // Get raw mock data
+  const timeInRangeReadings = getMockTimeInRangeData(period);
+  const activeTimeInRangeReadings = getActivePatientReadings(timeInRangeReadings);
+  
+  // Process data into API response format
+  const processedTimeInRange = processTimeInRangeData(activeTimeInRangeReadings);
+  const activePatientCount = getActivePatientCount(timeInRangeReadings);
+  
+  return {
+    success: true,
+    data: {
+      patientCount: activePatientCount,
+      period: period,
+      dataGeneratedDate: new Date().toISOString().split('T')[0],
+      timeInRange: processedTimeInRange
+    },
+    message: `Time in Range data for ${period} days retrieved successfully`,
+    timestamp: new Date().toISOString()
+  };
+}
+
+function getMockGMIResponse(period: TimePeriod) {
+  // Get raw mock data
+  const gmiReadings = getMockGMIData(period);
+  const activeGmiReadings = getActivePatientReadings(gmiReadings);
+  
+  // Process data into API response format
+  const processedGMI = processGMIData(activeGmiReadings);
+  const activePatientCount = getActivePatientCount(gmiReadings);
+  
+  return {
+    success: true,
+    data: {
+      patientCount: activePatientCount,
+      period: period,
+      dataGeneratedDate: new Date().toISOString().split('T')[0],
+      gmi: processedGMI
+    },
+    message: `GMI data for ${period} days retrieved successfully`,
+    timestamp: new Date().toISOString()
+  };
 }
 
 function getMockDashboardResponse(period: TimePeriod): DashboardApiResponse {
