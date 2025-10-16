@@ -1,0 +1,56 @@
+<!-- GMI Chart -->
+<div class="chart-section">
+  <h2 class="chart-title">Glucose Management Indicator (GMI)</h2>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+  </div>
+
+  <!-- Chart Content -->
+  <div class="chart-container" *ngIf="(gmiData$ | async) as data">
+    <div class="gmi-average-display">
+      <div class="average-label">AVERAGE GMI</div>
+      <div class="average-value">{{ data.averageGMI }}%</div>
+    </div>
+    
+    <div class="chart-wrapper">
+      <canvas id="gmiChart" width="240" height="240"></canvas>
+      
+      <!-- Percentage Labels on the right side of pie chart -->
+      <div class="pie-chart-labels">
+        <div class="pie-label target" *ngIf="data.target > 0">
+          {{ data.target }}%
+        </div>
+        <div class="pie-label above" *ngIf="data.above > 0">
+          {{ data.above }}%
+        </div>
+        <div class="pie-label high" *ngIf="data.high > 0">
+          {{ data.high }}%
+        </div>
+      </div>
+    </div>
+    
+    <!-- GMI Range Labels Above Strip -->
+    <div class="gmi-range-labels">
+      <span>≤7%</span>
+      <span>7-8%</span>
+      <span>≥8%</span>
+    </div>
+    
+    <!-- GMI Color Strip -->
+    <div class="gmi-range-strip">
+      <div class="gmi-segment target"></div>
+      <div class="gmi-segment above"></div>
+      <div class="gmi-segment high"></div>
+    </div>
+    
+    <!-- GMI Label Below Strip -->
+    <div class="gmi-label">GMI (%)</div>
+  </div>
+</div>

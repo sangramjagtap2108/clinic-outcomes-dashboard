@@ -1,0 +1,76 @@
+<!-- Time in Range Chart -->
+<div class="chart-section">
+  <h2 class="chart-title">
+    Time in range
+    <div class="info-icon-container">
+      <div class="info-icon">
+        <span class="icon-circle">i</span>
+        <div class="tooltip-popup">
+          <div>Based on standard of care</div>
+          <div>ranges for Time in range.</div>
+        </div>
+      </div>
+    </div>
+  </h2>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+  </div>
+
+  <!-- Chart Content -->
+  <div class="chart-container" *ngIf="(timeInRangeData$ | async) as data">
+    <div class="chart-wrapper">
+      <canvas id="timeInRangeChart" width="400" height="200"></canvas>
+      
+      <!-- Percentage Labels Overlay -->
+      <div class="chart-labels">
+        <div class="label very-low" *ngIf="data.veryLow > 0">
+          {{ data.veryLow }}%
+        </div>
+        <div class="label low" *ngIf="data.low > 0">
+          {{ data.low }}%
+        </div>
+        <div class="label target" *ngIf="data.target > 0">
+          {{ data.target }}%
+        </div>
+        <div class="label high" *ngIf="data.high > 0">
+          {{ data.high }}%
+        </div>
+        <div class="label very-high" *ngIf="data.veryHigh > 0">
+          {{ data.veryHigh }}%
+        </div>
+      </div>
+    </div>
+    
+    <!-- Glucose Range Strip -->
+    <div class="glucose-range-container">
+      <!-- Numbers above the strip -->
+      <div class="range-numbers">
+        <span>40</span>
+        <span>54</span>
+        <span>70</span>
+        <span>180</span>
+        <span>240</span>
+        <span>400</span>
+      </div>
+      
+      <!-- Color strip -->
+      <div class="glucose-range-strip">
+        <div class="range-segment very-low"></div>
+        <div class="range-segment low"></div>
+        <div class="range-segment target"></div>
+        <div class="range-segment high"></div>
+        <div class="range-segment very-high"></div>
+      </div>
+      
+      <!-- mg/dL label below -->
+      <div class="range-unit">mg/dL</div>
+    </div>
+  </div>
+</div>

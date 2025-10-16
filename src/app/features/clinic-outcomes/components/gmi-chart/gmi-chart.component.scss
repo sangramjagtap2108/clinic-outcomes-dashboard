@@ -1,0 +1,169 @@
+/* Chart Section */
+.chart-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  width: 100%;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* GMI Chart specific styling */
+#gmiChart {
+  max-width: 240px !important;
+  max-height: 240px !important;
+  width: 240px !important;
+  height: 240px !important;
+}
+
+/* Chart Wrapper for Side Labels */
+.chart-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* GMI Average Display */
+.gmi-average-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.average-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.average-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Pie Chart Labels */
+.pie-chart-labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 80px;
+  gap: 10px;
+  height: 300px;
+}
+
+.pie-chart-labels .pie-label {
+  color: #333;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 4px 0;
+}
+
+/* Color indicators - circles for pie chart */
+.pie-chart-labels .pie-label::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 50%;
+}
+
+/* GMI Pie Chart Colors */
+.pie-chart-labels .pie-label.target::before {
+  background-color: #8bc34a;
+}
+
+.pie-chart-labels .pie-label.above::before {
+  background-color: #ff9800;
+}
+
+.pie-chart-labels .pie-label.high::before {
+  background-color: #f44336;
+}
+
+/* GMI Range Components */
+.gmi-range-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  margin: 15px auto 5px auto;
+  font-size: 11px;
+  color: #666;
+}
+
+.gmi-range-strip {
+  display: flex;
+  width: 300px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.gmi-segment.target {
+  background-color: #8bc34a;
+  flex: 1;
+}
+
+.gmi-segment.above {
+  background-color: #ff9800;
+  flex: 1;
+}
+
+.gmi-segment.high {
+  background-color: #f44336;
+  flex: 1;
+}
+
+.gmi-label {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+/* Error State */
+.error-container {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 16px;
+  margin: 0;
+}

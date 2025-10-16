@@ -30,149 +30,27 @@
       <p class="patient-count">
         Showing {{ data.timeInRange?.activePatientCount || 0 }} patients from last 
         {{ (selectedPeriod$ | async) }} days of available data from 
-        {{ data.metadata?.dateRange?.start }} - {{ data.metadata?.dateRange?.end }}
+        {{ data.metadata.dateRange.start }} - {{ data.metadata.dateRange.end }}
       </p>
       <p class="data-info">
         Only patients with a minimum of 3 days of SG data are included. 
-        Last updated on {{ data.metadata?.lastUpdated }}
+        Last updated on {{ data.metadata.lastUpdated }}
       </p>
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading$ | async; else contentSection" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Loading clinic outcomes data...</p>
-  </div>
-
-  <!-- Main Content - Only shows when NOT loading -->
-  <ng-template #contentSection>
-    <div class="dashboard-content">
-      <ng-container *ngIf="dashboardData$ | async as data">
-        <ng-container *ngIf="data.timeInRange && data.gmi && data.metadata">
-
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <ng-container *ngIf="dashboardData$ | async as data">
       <!-- Charts Section -->
       <div class="charts-container">
-        
-        <!-- Time in Range Chart -->
-        <div class="chart-section">
-          <h2 class="chart-title">
-            Time in range
-            <div class="info-icon-container">
-              <div class="info-icon">
-                <span class="icon-circle">i</span>
-                <div class="tooltip-popup">
-                  <div>Based on standard of care</div>
-                  <div>ranges for Time in range.</div>
-                </div>
-              </div>
-            </div>
-          </h2>
-          <div class="chart-container" *ngIf="data.timeInRange">
-            <div class="chart-wrapper">
-              <canvas id="timeInRangeChart" width="400" height="200"></canvas>
-              
-              <!-- Percentage Labels Overlay -->
-              <div class="chart-labels">
-                <div class="label very-low" *ngIf="data.timeInRange.veryLow > 0">
-                  {{ data.timeInRange.veryLow }}%
-                </div>
-                <div class="label low" *ngIf="data.timeInRange.low > 0">
-                  {{ data.timeInRange.low }}%
-                </div>
-                <div class="label target" *ngIf="data.timeInRange.target > 0">
-                  {{ data.timeInRange.target }}%
-                </div>
-                <div class="label high" *ngIf="data.timeInRange.high > 0">
-                  {{ data.timeInRange.high }}%
-                </div>
-                <div class="label very-high" *ngIf="data.timeInRange.veryHigh > 0">
-                  {{ data.timeInRange.veryHigh }}%
-                </div>
-              </div>
-            </div>
-            
-            <!-- Glucose Range Strip -->
-            <div class="glucose-range-container">
-              <!-- Numbers above the strip -->
-              <div class="range-numbers">
-                <span>40</span>
-                <span>54</span>
-                <span>70</span>
-                <span>180</span>
-                <span>240</span>
-                <span>400</span>
-              </div>
-              
-              <!-- Color strip -->
-              <div class="glucose-range-strip">
-                <div class="range-segment very-low"></div>
-                <div class="range-segment low"></div>
-                <div class="range-segment target"></div>
-                <div class="range-segment high"></div>
-                <div class="range-segment very-high"></div>
-              </div>
-              
-              <!-- mg/dL label below -->
-              <div class="range-unit">mg/dL</div>
-            </div>
-          </div>
-        </div>
+        <!-- Time in Range Chart Component -->
+        <app-time-in-range-chart></app-time-in-range-chart>
 
-        <!-- GMI Chart -->
-        <div class="chart-section">
-          <h2 class="chart-title">Glucose Management Indicator (GMI)</h2>
-          <div class="chart-container" *ngIf="data.gmi">
-            <div class="gmi-average-display">
-              <div class="average-label">AVERAGE GMI</div>
-              <div class="average-value">{{ data.gmi.averageGMI }}%</div>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="gmiChart" width="240" height="240"></canvas>
-              
-              <!-- Percentage Labels on the right side of pie chart -->
-              <div class="pie-chart-labels">
-                <div class="pie-label target" *ngIf="data.gmi.target > 0">
-                  {{ data.gmi.target }}%
-                </div>
-                <div class="pie-label above" *ngIf="data.gmi.above > 0">
-                  {{ data.gmi.above }}%
-                </div>
-                <div class="pie-label high" *ngIf="data.gmi.high > 0">
-                  {{ data.gmi.high }}%
-                </div>
-              </div>
-            </div>
-            
-            <!-- GMI Range Labels Above Strip -->
-            <div class="gmi-range-labels">
-              <span>≤7%</span>
-              <span>7-8%</span>
-              <span>≥8%</span>
-            </div>
-            
-            <!-- GMI Color Strip -->
-            <div class="gmi-range-strip">
-              <div class="gmi-segment target"></div>
-              <div class="gmi-segment above"></div>
-              <div class="gmi-segment high"></div>
-            </div>
-            
-            <!-- GMI Label Below Strip -->
-            <div class="gmi-label">GMI (%)</div>
-          </div>
-        </div>
+        <!-- GMI Chart Component -->
+        <app-gmi-chart></app-gmi-chart>
       </div>
     </ng-container>
-    </ng-container>
-
-    <!-- Error State -->
-    <div *ngIf="(dashboardData$ | async)?.error" class="error-container">
-      <p class="error-message">
-        Error loading data: {{ (dashboardData$ | async)?.error }}
-      </p>
-    </div>
-    </div>
-  </ng-template>
+  </div>
 
 </div>
