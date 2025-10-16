@@ -1,13 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { TimeInRangeResult, GMIResult, DashboardMetadata, TimePeriod } from '../models';
 
-// Period Selection
-export const selectTimePeriod = createAction(
-  '[Clinic Outcomes] Select Time Period',
-  props<{ period: TimePeriod }>()
-);
-
-// Load Dashboard Data (single action for everything)
+// Load Dashboard Data (sets period and loads data atomically)
 export const loadDashboardData = createAction(
   '[Clinic Outcomes] Load Dashboard Data',
   props<{ period: TimePeriod }>()

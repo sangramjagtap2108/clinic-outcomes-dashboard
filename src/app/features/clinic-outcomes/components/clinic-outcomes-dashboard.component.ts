@@ -10,7 +10,7 @@ import {
   selectSelectedPeriod,
   selectLoading 
 } from '../store/selectors';
-import { loadDashboardData, selectTimePeriod } from '../store/actions';
+import { loadDashboardData } from '../store/actions';
 import { TimePeriod } from '../models';
 
 @Component({
@@ -270,7 +270,7 @@ export class ClinicOutcomesDashboardComponent implements OnInit, AfterViewInit, 
   }
 
   onPeriodSelect(period: TimePeriod) {
-    this.store.dispatch(selectTimePeriod({ period }));
+    // Single action now handles both period selection and data loading atomically
     this.store.dispatch(loadDashboardData({ period }));
   }
 

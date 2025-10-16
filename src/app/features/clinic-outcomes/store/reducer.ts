@@ -5,15 +5,10 @@ import * as ClinicOutcomesActions from './actions';
 export const clinicOutcomesReducer = createReducer(
   initialState,
 
-  // Period Selection
-  on(ClinicOutcomesActions.selectTimePeriod, (state, { period }) => ({
+  // Dashboard Data Loading (now also sets the selected period atomically)
+  on(ClinicOutcomesActions.loadDashboardData, (state, { period }) => ({
     ...state,
-    selectedPeriod: period
-  })),
-
-  // Dashboard Data Loading
-  on(ClinicOutcomesActions.loadDashboardData, (state) => ({
-    ...state,
+    selectedPeriod: period,
     loading: true,
     error: null
   })),

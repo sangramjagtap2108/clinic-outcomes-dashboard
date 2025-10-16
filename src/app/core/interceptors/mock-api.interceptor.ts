@@ -6,10 +6,31 @@ import { DashboardApiResponse } from '../../shared/models';
 import { TimePeriod, TimeInRangeReading, GMIReading } from '../../features/clinic-outcomes/models';
 import { getMockTimeInRangeData, getMockGMIData } from '../../features/clinic-outcomes/services/mock-data';
 
+// Constants for medical ranges
+const GLUCOSE_RANGES = {
+  VERY_LOW_MAX: 54,
+  LOW_MIN: 54,
+  LOW_MAX: 69,
+  TARGET_MIN: 70,
+  TARGET_MAX: 180,
+  HIGH_MIN: 181,
+  HIGH_MAX: 250
+} as const;
+
+const GMI_RANGES = {
+  TARGET_MAX: 7.0,
+  ABOVE_MIN: 7.0,
+  ABOVE_MAX: 8.0,
+  HIGH_MIN: 8.0
+} as const;
+
+const NETWORK_DELAY_MS = 500;
+const MIN_READINGS_PER_PATIENT = 3;
+
 export function mockApiInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   
-  // Check if this is a clinic outcomes API call
-  if (req.url.includes('/api/clinic-outcomes/dashboard') || req.url.includes('api/clinic-outcomes/dashboard')) {
+  // Check if this is a clinic outcomes API call (simplified condition)
+  if (req.url.includes('clinic-outcomes/dashboard')) {
     
     // Extract period from query parameters
     const period = extractPeriodFromUrl(req.url);
@@ -22,7 +43,7 @@ export function mockApiInterceptor(req: HttpRequest<unknown>, next: HttpHandlerF
       status: 200,
       body: mockResponse
     })).pipe(
-      delay(500) // 500ms delay to simulate realistic network behavior
+      delay(NETWORK_DELAY_MS) // Configurable delay for realistic network behavior
     );
   }
 
@@ -31,13 +52,23 @@ export function mockApiInterceptor(req: HttpRequest<unknown>, next: HttpHandlerF
 }
 
 function extractPeriodFromUrl(url: string): TimePeriod {
-  // Extract period from URL like: /api/clinic-outcomes/dashboard?period=30
-  const urlParams = new URLSearchParams(url.split('?')[1] || '');
-  const periodParam = urlParams.get('period');
-  const period = parseInt(periodParam || '30', 10);
-  
-  // Validate period and return default if invalid
-  return [30, 60, 90].includes(period) ? period as TimePeriod : 30;
+  try {
+    // Extract period from URL like: /api/clinic-outcomes/dashboard?period=30
+    const urlParts = url.split('?');
+    if (urlParts.length < 2) {
+      return 30; // Default period if no query parameters
+    }
+    
+    const urlParams = new URLSearchParams(urlParts[1]);
+    const periodParam = urlParams.get('period');
+    const period = parseInt(periodParam || '30', 10);
+    
+    // Validate period and return default if invalid
+    return [30, 60, 90].includes(period) ? period as TimePeriod : 30;
+  } catch (error) {
+    console.warn('Failed to extract period from URL, using default:', error);
+    return 30;
+  }
 }
 
 function getMockDashboardResponse(period: TimePeriod): DashboardApiResponse {
@@ -45,9 +76,13 @@ function getMockDashboardResponse(period: TimePeriod): DashboardApiResponse {
   const timeInRangeReadings = getMockTimeInRangeData(period);
   const gmiReadings = getMockGMIData(period);
   
+  // Get active patient readings (used by both processing functions)
+  const activeTimeInRangeReadings = getActivePatientReadings(timeInRangeReadings);
+  const activeGmiReadings = getActivePatientReadings(gmiReadings);
+  
   // Process data into API response format
-  const processedTimeInRange = processTimeInRangeData(timeInRangeReadings);
-  const processedGMI = processGMIData(gmiReadings);
+  const processedTimeInRange = processTimeInRangeData(activeTimeInRangeReadings);
+  const processedGMI = processGMIData(activeGmiReadings);
   const activePatientCount = getActivePatientCount(timeInRangeReadings);
   
   return {
@@ -65,8 +100,7 @@ function getMockDashboardResponse(period: TimePeriod): DashboardApiResponse {
 }
 
 // Data processing functions
-function processTimeInRangeData(readings: TimeInRangeReading[]) {
-  const activeReadings = getActivePatientReadings(readings);
+function processTimeInRangeData(activeReadings: TimeInRangeReading[]) {
   const total = activeReadings.length;
   
   if (total === 0) {
@@ -74,11 +108,11 @@ function processTimeInRangeData(readings: TimeInRangeReading[]) {
   }
   
   const ranges = {
-    veryLow: activeReadings.filter(r => r.value < 54).length,
-    low: activeReadings.filter(r => r.value >= 54 && r.value <= 69).length,
-    target: activeReadings.filter(r => r.value >= 70 && r.value <= 180).length,
-    high: activeReadings.filter(r => r.value >= 181 && r.value <= 250).length,
-    veryHigh: activeReadings.filter(r => r.value > 250).length
+    veryLow: activeReadings.filter(r => r.value < GLUCOSE_RANGES.VERY_LOW_MAX).length,
+    low: activeReadings.filter(r => r.value >= GLUCOSE_RANGES.LOW_MIN && r.value <= GLUCOSE_RANGES.LOW_MAX).length,
+    target: activeReadings.filter(r => r.value >= GLUCOSE_RANGES.TARGET_MIN && r.value <= GLUCOSE_RANGES.TARGET_MAX).length,
+    high: activeReadings.filter(r => r.value >= GLUCOSE_RANGES.HIGH_MIN && r.value <= GLUCOSE_RANGES.HIGH_MAX).length,
+    veryHigh: activeReadings.filter(r => r.value > GLUCOSE_RANGES.HIGH_MAX).length
   };
 
   return {
@@ -90,8 +124,7 @@ function processTimeInRangeData(readings: TimeInRangeReading[]) {
   };
 }
 
-function processGMIData(readings: GMIReading[]) {
-  const activeReadings = getActivePatientReadings(readings);
+function processGMIData(activeReadings: GMIReading[]) {
   const total = activeReadings.length;
   
   if (total === 0) {
@@ -102,11 +135,11 @@ function processGMIData(readings: GMIReading[]) {
   const totalGMI = activeReadings.reduce((sum, reading) => sum + reading.value, 0);
   const averageGMI = totalGMI / total;
   
-  // Calculate percentage distributions
+  // Calculate percentage distributions using constants
   const ranges = {
-    target: activeReadings.filter(r => r.value <= 7.0).length, // ≤7.0%
-    above: activeReadings.filter(r => r.value > 7.0 && r.value <= 8.0).length, // 7.0-8.0%
-    high: activeReadings.filter(r => r.value > 8.0).length // >8.0%
+    target: activeReadings.filter(r => r.value <= GMI_RANGES.TARGET_MAX).length, // ≤7.0%
+    above: activeReadings.filter(r => r.value > GMI_RANGES.ABOVE_MIN && r.value <= GMI_RANGES.ABOVE_MAX).length, // 7.0-8.0%
+    high: activeReadings.filter(r => r.value > GMI_RANGES.HIGH_MIN).length // >8.0%
   };
 
   return {
@@ -127,9 +160,9 @@ function getActivePatientReadings<T extends { pid: string }>(readings: T[]): T[]
     return acc;
   }, {} as Record<string, T[]>);
   
-  // Filter patients with 3 or more readings and flatten
+  // Filter patients with minimum required readings and flatten
   return Object.values(patientReadings)
-    .filter(patientData => patientData.length >= 3)
+    .filter(patientData => patientData.length >= MIN_READINGS_PER_PATIENT)
     .flat();
 }
 
@@ -143,6 +176,6 @@ function getActivePatientCount(readings: TimeInRangeReading[]): number {
     return acc;
   }, {} as Record<string, number>);
   
-  // Count patients with 3 or more readings
-  return Object.values(patientReadings).filter(count => count >= 3).length;
+  // Count patients with minimum required readings
+  return Object.values(patientReadings).filter(count => count >= MIN_READINGS_PER_PATIENT).length;
 }
