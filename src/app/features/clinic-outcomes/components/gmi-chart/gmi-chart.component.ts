@@ -25,6 +25,9 @@ export class GMIChartComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private gmiChart: Chart | null = null;
 
+  // GMI range labels for the strip
+  public gmiRangeLabels: string[] = ['≤7%', '7-8%', '≥8%'];
+
   constructor() {
     // Register Chart.js components - no platform check needed for SPA
     Chart.register(...registerables);

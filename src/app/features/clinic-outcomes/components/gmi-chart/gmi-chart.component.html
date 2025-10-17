@@ -38,9 +38,7 @@
     
     <!-- GMI Range Labels Above Strip -->
     <div class="gmi-range-labels">
-      <span>≤7%</span>
-      <span>7-8%</span>
-      <span>≥8%</span>
+      <span *ngFor="let label of gmiRangeLabels">{{ label }}</span>
     </div>
     
     <!-- GMI Color Strip -->

@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators';
 import { 
   TimeInRangeResult, 
   GMIResult, 
-  DashboardMetadata, 
   TimePeriod
 } from '../models';
 import { ApiResponse } from '../../../shared/models';
@@ -90,53 +89,5 @@ export class ClinicOutcomesDataService {
         };
       })
     );
-  }
-
-  /**
-   * Get metadata for specific period
-   */
-  getMetadata(period: TimePeriod): Observable<DashboardMetadata> {
-    return new Observable(observer => {
-      observer.next({
-        dateRange: {
-          start: this.formatDateForPeriod(period),
-          end: new Date().toLocaleDateString()
-        },
-        lastUpdated: new Date().toLocaleString(),
-        selectedPeriod: period
-      });
-      observer.complete();
-    });
-  }
-
-  /**
-   * Legacy method - kept for backward compatibility during transition
-   * @deprecated Use getTimeInRangeData(), getGMIData(), and getMetadata() instead
-   */
-  /**
-   * Legacy method - kept for backward compatibility during transition
-   * @deprecated Use getTimeInRangeData(), getGMIData(), and getMetadata() instead
-   */
-  getDashboardData(period: TimePeriod): Observable<{
-    timeInRangeResult: TimeInRangeResult;
-    gmiResult: GMIResult;
-    metadata: DashboardMetadata;
-  }> {
-    // This method will be removed after migration to separate calls
-    // For now, we'll use the new separate methods internally
-    return new Observable(observer => {
-      // Note: This is temporary - will be removed once NgRx is updated
-      observer.error(new Error('getDashboardData is deprecated. Use separate methods.'));
-    });
-  }
-
-  /**
-   * Helper method to format date for the given period
-   */
-  private formatDateForPeriod(period: TimePeriod): string {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - period);
-    return startDate.toLocaleDateString();
-  }
+  }  
 }

@@ -55,9 +55,7 @@ export const selectGMIError = createSelector(
 // Computed metadata selectors (generated locally)
 export const selectMetadata = createSelector(
   selectSelectedPeriod,
-  selectTimeInRangeResult,
-  selectGMIResult,
-  (selectedPeriod, timeInRangeData, gmiData) => {
+  (selectedPeriod) => {
     // Generate date range based on selected period
     const endDate = new Date();
     const startDate = new Date();

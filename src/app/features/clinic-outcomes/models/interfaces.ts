@@ -31,13 +31,3 @@ export interface GMIResult {
   activePatientCount: number;
   totalReadings: number;
 }
-
-// Dashboard metadata
-export interface DashboardMetadata {
-  dateRange: {
-    start: string;
-    end: string;
-  };
-  lastUpdated: string;
-  selectedPeriod: TimePeriod;
-}

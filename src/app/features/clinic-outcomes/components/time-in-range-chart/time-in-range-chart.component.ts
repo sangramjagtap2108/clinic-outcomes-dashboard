@@ -25,6 +25,9 @@ export class TimeInRangeChartComponent implements OnInit, AfterViewInit, OnDestr
   private destroy$ = new Subject<void>();
   private timeInRangeChart: Chart | null = null;
 
+  // Glucose range numbers for the strip
+  public glucoseRangeNumbers: number[] = [40, 54, 70, 180, 240, 400];
+
   constructor() {
     // Register Chart.js components - no platform check needed for SPA
     Chart.register(...registerables);

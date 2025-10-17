@@ -30,20 +30,20 @@
       
       <!-- Percentage Labels Overlay -->
       <div class="chart-labels">
-        <div class="label very-low" *ngIf="data.veryLow > 0">
-          {{ data.veryLow }}%
-        </div>
-        <div class="label low" *ngIf="data.low > 0">
-          {{ data.low }}%
-        </div>
-        <div class="label target" *ngIf="data.target > 0">
-          {{ data.target }}%
+        <div class="label very-high" *ngIf="data.veryHigh > 0">
+          {{ data.veryHigh }}%
         </div>
         <div class="label high" *ngIf="data.high > 0">
           {{ data.high }}%
         </div>
-        <div class="label very-high" *ngIf="data.veryHigh > 0">
-          {{ data.veryHigh }}%
+        <div class="label target" *ngIf="data.target > 0">
+          {{ data.target }}%
+        </div>
+        <div class="label low" *ngIf="data.low > 0">
+          {{ data.low }}%
+        </div>
+        <div class="label very-low" *ngIf="data.veryLow > 0">
+          {{ data.veryLow }}%
         </div>
       </div>
     </div>
@@ -52,12 +52,7 @@
     <div class="glucose-range-container">
       <!-- Numbers above the strip -->
       <div class="range-numbers">
-        <span>40</span>
-        <span>54</span>
-        <span>70</span>
-        <span>180</span>
-        <span>240</span>
-        <span>400</span>
+        <span *ngFor="let num of glucoseRangeNumbers">{{ num }}</span>
       </div>
       
       <!-- Color strip -->

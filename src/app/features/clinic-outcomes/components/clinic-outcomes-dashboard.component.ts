@@ -20,11 +20,15 @@ import { GMIChartComponent } from './gmi-chart/gmi-chart.component';
 })
 export class ClinicOutcomesDashboardComponent implements OnInit {
   private store = inject(Store);
-  
+
+
   dashboardData$ = this.store.select(selectDashboardData);
   selectedPeriod$ = this.store.select(selectSelectedPeriod);
-  
+
   timePeriods: TimePeriod[] = [30, 60, 90];
+
+  // Minimum days of SG data required for inclusion
+  minDaysRequired = 3;
 
   ngOnInit() {
     // Load initial data for 30 days using separate actions
@@ -38,7 +42,12 @@ export class ClinicOutcomesDashboardComponent implements OnInit {
   }
 
   onPeriodSelect(period: TimePeriod) {
-    // Dispatch separate actions for each data type
+    // Prevent reload if the selected period is already active
+    let currentPeriod: TimePeriod | null = null;
+    this.selectedPeriod$.subscribe(selected => currentPeriod = selected).unsubscribe();
+    if (currentPeriod === period) {
+      return;
+    }
     this.loadDataForPeriod(period);
   }
 

@@ -4,44 +4,44 @@
     <div class="header-content">
       <h1 class="dashboard-title">Clinic Outcomes</h1>
     </div>
-    
+
     <!-- Filter and Print Row -->
     <div class="filter-controls">
       <!-- Time Period Filter -->
       <div class="period-filter">
-        <button 
+        <button
           *ngFor="let period of timePeriods"
           class="period-btn"
           [class.active]="(selectedPeriod$ | async) === period"
-          (click)="onPeriodSelect(period)">
+          (click)="onPeriodSelect(period)"
+        >
           {{ period }} days
         </button>
       </div>
-      
+
       <!-- Print Button -->
       <button class="print-btn" (click)="onPrintClick()">
-        <span class="print-icon">🖨️</span>
+        <span class="material-icons print-icon">print</span>
         Print
       </button>
     </div>
-    
+
     <!-- Patient Information -->
     <div class="patient-info-content" *ngIf="dashboardData$ | async as data">
       <p class="patient-count">
-        Showing {{ data.timeInRange?.activePatientCount || 0 }} patients from last 
-        {{ (selectedPeriod$ | async) }} days of available data from 
+        Showing {{ data.timeInRange?.activePatientCount || 0 }} patients from last
+        {{ selectedPeriod$ | async }} days of available data from
         {{ data.metadata.dateRange.start }} - {{ data.metadata.dateRange.end }}
       </p>
       <p class="data-info">
-        Only patients with a minimum of 3 days of SG data are included. 
-        Last updated on {{ data.metadata.lastUpdated }}
+  Only patients with a minimum of {{ minDaysRequired }} days of SG data are included. Last updated on
+  {{ data.metadata.lastUpdated }}
       </p>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="dashboard-content">
-    <ng-container *ngIf="dashboardData$ | async as data">
       <!-- Charts Section -->
       <div class="charts-container">
         <!-- Time in Range Chart Component -->
@@ -50,7 +50,5 @@
         <!-- GMI Chart Component -->
         <app-gmi-chart></app-gmi-chart>
       </div>
-    </ng-container>
   </div>
-
 </div>
